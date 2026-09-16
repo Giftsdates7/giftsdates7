@@ -2122,6 +2122,7 @@ class VipProfileReq(BaseModel):
     city: str = ""
     country: str = ""
     gender: str = ""
+    genders: List[str] = []
     bio: str = ""
     show_on_main: bool = True  # when "separate", whether to also show a VIP hint on the main profile
 
@@ -2142,6 +2143,10 @@ async def put_vip_profile(req: VipProfileReq, user=Depends(get_current_user)):
             slots.append({"date": d, "from": f, "to": tt})
     slots.sort(key=lambda x: (x["date"], x["from"]))
     post_mode = req.post_mode if req.post_mode in ("together", "separate") else "together"
+    VALID_GENDERS = ("female", "male", "trans_woman", "trans_man", "non_binary")
+    _genders = [g for g in (req.genders or []) if g in VALID_GENDERS]
+    if not _genders and req.gender in VALID_GENDERS:
+        _genders = [req.gender]
     _age = None
     if req.age:
         try: _age = max(18, min(99, int(req.age)))
@@ -2152,7 +2157,8 @@ async def put_vip_profile(req: VipProfileReq, user=Depends(get_current_user)):
            "places": places, "client_wants": (req.client_wants or "").strip()[:1000],
            "nickname": (req.nickname or "").strip()[:40], "post_mode": post_mode,
            "age": _age, "city": (req.city or "").strip()[:80], "country": (req.country or "").strip()[:80],
-           "gender": req.gender if req.gender in ("female", "male", "trans_woman", "trans_man", "non_binary") else "",
+           "gender": _genders[0] if _genders else "",
+           "genders": _genders,
            "bio": (req.bio or "").strip()[:1000], "show_on_main": bool(req.show_on_main),
            "availability": slots, "published": bool(req.published) and can_publish, "updated_at": datetime.now(timezone.utc).isoformat()}
     # preserve previously uploaded photos (managed by separate photo endpoints)
@@ -2196,12 +2202,14 @@ async def get_vip_profile(uid: str, preview: Optional[str] = None, user=Depends(
         display_country = vip.get("country") or owner.get("country")
         display_age = vip.get("age") or owner.get("age")
         display_gender = vip.get("gender") or owner.get("gender")
+        display_genders = vip.get("genders") or ([vip.get("gender")] if vip.get("gender") else ([owner.get("gender")] if owner.get("gender") else []))
     else:
         display_name = owner.get("name")
         display_city = owner.get("city")
         display_country = owner.get("country")
         display_age = owner.get("age")
         display_gender = owner.get("gender")
+        display_genders = [owner.get("gender")] if owner.get("gender") else []
     # target used for booking: public_id for separate listings so the real id stays hidden
     target_id = vip.get("public_id") if (separate and not is_owner) else owner["id"]
     if is_owner or eff_premium:
@@ -2209,7 +2217,7 @@ async def get_vip_profile(uid: str, preview: Optional[str] = None, user=Depends(
                 "real_name": (None if (separate and not is_owner) else owner.get("name")),
                 "nickname": vip.get("nickname") or "", "post_mode": vip.get("post_mode") or "together",
                 "separate": separate, "show_on_main": vip.get("show_on_main", True),
-                "city": display_city, "country": display_country, "age": display_age, "gender": display_gender,
+                "city": display_city, "country": display_country, "age": display_age, "gender": display_gender, "genders": display_genders,
                 "vip": vip, "is_owner": is_owner}
     _p = vip.get("photos") or []
     return {"locked": True, "teaser_photo": _p[0] if _p else None, "name": display_name if separate else None,

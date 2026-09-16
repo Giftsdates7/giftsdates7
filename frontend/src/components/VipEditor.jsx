@@ -36,7 +36,7 @@ export default function VipEditor() {
   const [sepAge, setSepAge] = useState(v.age || "");
   const [sepCity, setSepCity] = useState(v.city || "");
   const [sepCountry, setSepCountry] = useState(v.country || "");
-  const [sepGender, setSepGender] = useState(v.gender || "");
+  const [sepGenders, setSepGenders] = useState(v.genders || (v.gender ? [v.gender] : []));
   const [sepBio, setSepBio] = useState(v.bio || "");
   const [showOnMain, setShowOnMain] = useState(v.show_on_main !== false);
   const [published, setPublished] = useState(v.published !== false);
@@ -98,7 +98,7 @@ export default function VipEditor() {
         price_hour: Number(prices.hour) || 0, price_2h: Number(prices.h2) || 0, price_3h: Number(prices.h3) || 0,
         availability: slots, published: isVip ? published : false,
         nickname, post_mode: postMode,
-        age: Number(sepAge) || null, city: sepCity, country: sepCountry, gender: sepGender, bio: sepBio,
+        age: Number(sepAge) || null, city: sepCity, country: sepCountry, gender: sepGenders[0] || "", genders: sepGenders, bio: sepBio,
         show_on_main: showOnMain,
       });
       await refreshUser();
@@ -177,11 +177,17 @@ export default function VipEditor() {
           </button>
           <div>
             <label className="text-xs text-slate-400">{t("gender", lang)}</label>
-            <div className="mt-1 flex flex-wrap gap-2" data-testid="vip-sep-gender">
-              {["female", "male", "trans_woman", "trans_man", "non_binary"].map((g) => (
-                <button key={g} type="button" data-testid={`vip-sep-gender-${g}`} onClick={() => setSepGender(g)}
-                  className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${sepGender === g ? "bg-amber-500/20 border-amber-500/50 text-amber-200" : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"}`}>{t(g, lang)}</button>
-              ))}
+            <div className="mt-1" data-testid="vip-sep-gender">
+              <MultiSelect
+                testid="vip-sep-gender-select"
+                accent="amber"
+                value={sepGenders}
+                onChange={setSepGenders}
+                options={["female", "male", "trans_woman", "trans_man", "non_binary"].map((g) => ({ value: g, label: t(g, lang) }))}
+                placeholder={t("gender", lang)}
+                searchPlaceholder={t("search", lang)}
+                emptyText={t("no_results", lang)}
+              />
             </div>
           </div>
           <div>

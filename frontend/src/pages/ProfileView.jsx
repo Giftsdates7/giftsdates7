@@ -185,7 +185,7 @@ export default function ProfileView() {
             {(p.job_title || p.height || p.weight || p.income || p.religion || langNames || p.hobbies?.length > 0 || p.orientation || p.gender) && (
             <div className="glass rounded-2xl p-5" data-testid="profile-view-details">
               <h3 className="font-serif-luxe text-xl mb-2">{t("details", lang)}</h3>
-              <Row label={t("gender", lang)} value={optLabel("gender", p.gender, lang)} testid="pv-gender" />
+              <Row label={t("gender", lang)} value={(p.genders && p.genders.length) ? p.genders.map(g => optLabel("gender", g, lang)).join(", ") : optLabel("gender", p.gender, lang)} testid="pv-gender" />
               <Row label={t("orientation", lang)} value={optLabel("orientation", p.orientation, lang)} testid="pv-orientation" />
               <Row label={t("job_title", lang)} value={p.job_title} testid="pv-job" />
               <Row label={t("height", lang)} value={p.height && `${p.height} cm`} testid="pv-height" />
