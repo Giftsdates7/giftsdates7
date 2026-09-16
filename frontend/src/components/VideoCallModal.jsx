@@ -37,7 +37,11 @@ export default function VideoCallModal({ open, onOpenChange, target }) {
           return x + 1;
         }), 1000);
       }, 1200);
-    } catch (e) { toast.error(e.response?.data?.detail || t("failed", lang)); setPhase("setup"); }
+    } catch (e) {
+      const detail = e.response?.data?.detail;
+      const msg = detail === "VIDEO_CALLS_DISABLED" ? t("video_calls_disabled_toast", lang) : (detail || t("failed", lang));
+      toast.error(msg); setPhase("setup");
+    }
   };
   const end = () => { clearInterval(timerRef.current); setPhase("ended"); };
 

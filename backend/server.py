@@ -462,6 +462,7 @@ class ProfileUpdate(BaseModel):
     penis_size: Optional[str] = None
     date_price: Optional[int] = None
     video_rate: Optional[int] = None  # coins per minute, >= global video_rate
+    video_calls_enabled: Optional[bool] = None  # if False, others cannot start a video call
     availability: Optional[List[str]] = None  # ISO dates YYYY-MM-DD when user is open for dates
     availability_time: Optional[dict] = None  # {"from": "18:00", "to": "23:00"} default window
     availability_slots: Optional[dict] = None  # {"YYYY-MM-DD": {"from": "..", "to": ".."}} per-day overrides
@@ -1576,6 +1577,7 @@ async def gifts_sent(user=Depends(get_current_user)):
 async def start_call(req: VideoCallReq, user=Depends(get_current_user)):
     target = await db.users.find_one({"id": req.target_id})
     if not target: raise HTTPException(404, "Recipient not found")
+    if target.get("video_calls_enabled") is False: raise HTTPException(403, "VIDEO_CALLS_DISABLED")
     rate = max(target.get("video_rate") or 0, (await get_settings())["video_rate"])
     cost = req.minutes * rate
     if (user.get("coins", 0) + user.get("withdrawable", 0)) < cost: raise HTTPException(400, "Insufficient coins")

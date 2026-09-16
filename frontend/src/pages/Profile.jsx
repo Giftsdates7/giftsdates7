@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ShieldCheck, Trash2, Eye, EyeOff, MapPin, Loader2, Lock } from "lucide-react";
+import { ShieldCheck, Trash2, Eye, EyeOff, MapPin, Loader2, Lock, Video, VideoOff } from "lucide-react";
 import { api } from "../lib/api";
 import { useApp } from "../context/AppContext";
 import { t } from "../lib/i18n";
@@ -28,6 +28,7 @@ export default function Profile() {
   const isVip = user?.vip_until && new Date(user.vip_until) > new Date();
   const [f, setF] = useState(() => ({ name: user?.name, age: user?.age, bio: user?.bio, city: user?.city, country: user?.country,
     lat: user?.lat ?? null, lng: user?.lng ?? null, hide_distance: user?.hide_distance ?? false,
+    video_calls_enabled: user?.video_calls_enabled ?? true,
     ...Object.fromEntries(DETAIL_KEYS.map(k => [k, user?.[k] ?? null])) }));
   const [busy, setBusy] = useState(false);
   const [locating, setLocating] = useState(false);
@@ -159,6 +160,20 @@ export default function Profile() {
             <Label className="text-xs text-violet-300">{t("video_price", lang)}</Label>
             <Input data-testid="profile-video-rate-input" type="number" min={meta?.video_rate || 10} step="5" value={f.video_rate || ""} placeholder={String(meta?.video_rate || 10)} onChange={e => setF({ ...f, video_rate: e.target.value ? parseInt(e.target.value) : null })} className="bg-white/5 border-white/10 mt-1 font-mono-num"/>
             <p className="text-xs text-slate-400 mt-1">{t("video_price_hint", lang).replace("{n}", meta?.video_rate || 10)}</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-white/5 p-3 flex items-center justify-between gap-3" data-testid="profile-video-calls-row">
+            <div className="min-w-0">
+              <div className="text-sm text-slate-200 flex items-center gap-2">
+                {f.video_calls_enabled ? <Video size={15} className="text-violet-300 shrink-0" /> : <VideoOff size={15} className="text-slate-400 shrink-0" />}
+                {t("video_calls_enabled", lang)}
+              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">{t("video_calls_enabled_hint", lang)}</p>
+            </div>
+            <Switch
+              data-testid="profile-video-calls-switch"
+              checked={f.video_calls_enabled !== false}
+              onCheckedChange={v => setF({ ...f, video_calls_enabled: v })}
+            />
           </div>
         </div>
         <ProfileDetailsForm f={f} setF={setF} lang={lang} gender={user?.gender} />

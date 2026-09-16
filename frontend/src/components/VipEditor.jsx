@@ -1,17 +1,20 @@
 import React, { useState } from "react";
-import { Crown, Plus, X, Sparkles, Lock } from "lucide-react";
+import { Crown, Plus, X, Sparkles, Lock, MapPin, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { api, fileUrl } from "../lib/api";
 import { useApp } from "../context/AppContext";
 import { t } from "../lib/i18n";
+import { detectLocation } from "../lib/geolocate";
+import { normalizeCountry } from "../lib/countries";
+import { matchCuratedCity } from "../lib/cities";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Switch } from "./ui/switch";
 import { VIP_CATEGORIES, VIP_PLACES, PRICE_KEYS, svcLabel, catTitle, placeLabel, priceLabel } from "../lib/vipCatalog";
 import CountrySelect from "./CountrySelect";
-import CityField from "./CityField";
+import CitySelect from "./CitySelect";
 import MultiSelect from "./MultiSelect";
 
 export default function VipEditor() {
@@ -38,9 +41,25 @@ export default function VipEditor() {
   const [showOnMain, setShowOnMain] = useState(v.show_on_main !== false);
   const [published, setPublished] = useState(v.published !== false);
   const [busy, setBusy] = useState(false);
+  const [locating, setLocating] = useState(false);
   const photoRef = React.useRef(null);
   const privateRef = React.useRef(null);
   const goBuyVip = () => { toast.info(t("vip_upsell", lang)); nav("/wallet?vip=1"); };
+  const detectMyLocation = async () => {
+    setLocating(true);
+    try {
+      const { city, country } = await detectLocation(lang);
+      const normCountry = normalizeCountry(country);
+      const nearestCity = matchCuratedCity(city, normCountry);
+      if (normCountry) setSepCountry(normCountry);
+      if (nearestCity) setSepCity(nearestCity);
+      toast.success(t("location_detected", lang) + (nearestCity ? ` · ${nearestCity}${normCountry ? ", " + normCountry : ""}` : ""));
+    } catch {
+      toast.error(t("location_failed", lang));
+    } finally {
+      setLocating(false);
+    }
+  };
   const addPhoto = async (e, isPrivate = false) => {
     const f = e.target.files?.[0]; if (!f) return;
     const list = isPrivate ? privatePhotos : photos;
@@ -139,13 +158,23 @@ export default function VipEditor() {
             </div>
             <div>
               <label className="text-xs text-slate-400">{t("country", lang)}</label>
-              <CountrySelect testid="vip-sep-country" value={sepCountry} onChange={setSepCountry} lang={lang} />
+              <CountrySelect testid="vip-sep-country" value={sepCountry} onChange={(c) => { setSepCountry(c); setSepCity(""); }} lang={lang} />
             </div>
             <div>
               <label className="text-xs text-slate-400">{t("city", lang)}</label>
-              <CityField testid="vip-sep-city" value={sepCity} onChange={setSepCity} lang={lang} />
+              <CitySelect testid="vip-sep-city" value={sepCity} country={sepCountry} onChange={setSepCity} lang={lang} />
             </div>
           </div>
+          <button
+            type="button"
+            data-testid="vip-sep-detect-location"
+            onClick={detectMyLocation}
+            disabled={locating}
+            className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-lg border border-sky-500/40 bg-sky-500/10 text-sky-200 text-sm hover:bg-sky-500/20 transition-colors disabled:opacity-60"
+          >
+            {locating ? <Loader2 size={15} className="animate-spin" /> : <MapPin size={15} />}
+            {locating ? t("detecting_location", lang) : t("detect_location", lang)}
+          </button>
           <div>
             <label className="text-xs text-slate-400">{t("gender", lang)}</label>
             <div className="mt-1 flex flex-wrap gap-2" data-testid="vip-sep-gender">

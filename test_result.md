@@ -228,18 +228,54 @@ backend:
         agent: "testing"
         comment: "GET /api/wallet works correctly. Returns HTTP 200 with all required fields: coins, withdrawable, escrow, payout_account, transactions, withdrawals. The payout_account object correctly shows status 'pending' after submission. All wallet data is properly structured and accessible."
 
+  - task: "Video Calls Toggle - PATCH /api/auth/me"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "PATCH /api/auth/me with video_calls_enabled field works correctly. Successfully sets video_calls_enabled to false and true. Returns HTTP 200 with updated user object. Field is properly defined in ProfileUpdate model (line 465) and handled by the update endpoint (lines 856-895)."
+
+  - task: "Video Calls Toggle - Persistence"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "GET /api/auth/me correctly returns the persisted video_calls_enabled field. After setting video_calls_enabled=false via PATCH, subsequent GET requests return the same value. MongoDB persistence working correctly."
+
+  - task: "Video Calls Toggle - Enforcement in /videocalls/start"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "POST /api/videocalls/start correctly enforces video_calls_enabled flag. When target user has video_calls_enabled=false, returns HTTP 403 with detail 'VIDEO_CALLS_DISABLED'. When video_calls_enabled=true, proceeds to check coins (returns 400 'Insufficient coins' as expected for users with 0 coins). The check happens at line 1580 before the coins check, which is the correct order."
+
 metadata:
   created_by: "testing_agent"
   version: "1.0"
-  test_sequence: 2
+  test_sequence: 3
   run_ui: false
   last_tested: "2026-09-16"
-  last_test_focus: "auth_login_persistence"
+  last_test_focus: "video_calls_toggle_persistence_enforcement"
 
 test_plan:
   current_focus:
-    - "Auth/login persistence testing complete"
-    - "All core authentication flows verified"
+    - "Video calls toggle testing complete"
+    - "All video_calls_enabled flows verified"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -249,3 +285,5 @@ agent_communication:
     message: "Completed comprehensive testing of the withdrawal-gating and payout-document flow. Created /app/backend_test.py with 6 test scenarios covering: (1) User registration, (2) Payout account creation without documents, (3) Document upload (bank_statement, proof_of_address, invalid kind), (4) Payout account creation with documents, (5) Withdrawal attempt by non-verified user, (6) Wallet information retrieval. Results: 5/6 tests passed. One minor issue found in Test 2 - error message differs from specification but functionality is correct. All critical functionality works as expected. The identity verification check correctly happens before balance check in withdrawal flow. Email notifications are properly triggered for admin (new user signup and payout approval). No Stripe or actual email delivery testing performed as expected (no email key configured)."
   - agent: "testing"
     message: "Completed auth/login persistence testing after GitHub restore. Created new /app/backend_test.py with 5 test scenarios: (1) Root health check GET /api/, (2) User registration POST /api/auth/register, (3) User login POST /api/auth/login, (4) JWT authentication GET /api/auth/me, (5) JWT persistence across fresh requests. Results: 5/5 tests PASSED. All core authentication flows working correctly. MongoDB persistence confirmed - users can register, login, and maintain authenticated sessions via JWT tokens. The JWT token works consistently across multiple requests, confirming proper session persistence. No issues found with auth implementation."
+  - agent: "testing"
+    message: "Completed video calls toggle persistence and enforcement testing. Created /app/backend_test_videocalls.py with 5 test scenarios: (1) Set video_calls_enabled=false via PATCH /api/auth/me, (2) Verify persistence via GET /api/auth/me, (3) Verify VIDEO_CALLS_DISABLED enforcement in POST /api/videocalls/start, (4) Set video_calls_enabled=true via PATCH /api/auth/me, (5) Verify no VIDEO_CALLS_DISABLED error after enabling. Results: 5/5 tests PASSED. All video calls toggle functionality working correctly. The video_calls_enabled field can be set and persists in MongoDB. The POST /api/videocalls/start endpoint correctly checks the target user's video_calls_enabled flag before checking coins. When disabled, returns 403 VIDEO_CALLS_DISABLED. When enabled, proceeds to coins check (returns 400 Insufficient coins for users with 0 coins, as expected). Implementation is correct and complete."
