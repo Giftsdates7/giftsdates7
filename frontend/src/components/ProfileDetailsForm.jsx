@@ -12,7 +12,7 @@ export const RELIGIONS = ["christian", "muslim", "jewish", "buddhist", "hindu", 
 export const BUST = ["A", "B", "C", "D", "E", "F+"];
 export const SIZES = ["s", "m", "l", "xl"];
 
-export const GENDERS = ["female", "male", "trans_woman", "trans_man", "non_binary"];
+export const GENDERS = ["female", "male", "trans_woman", "trans_man", "non_binary", "transgender", "transfeminine", "transmasculine", "cis_woman", "cis_man", "agender", "genderqueer", "genderfluid", "genderless", "gender_nonconforming", "gender_questioning", "bigender", "pangender", "demigender", "demigirl", "demiboy", "two_spirit", "intersex", "androgyne", "androgynous", "neutrois", "gender_variant", "third_gender", "polygender", "omnigender", "transsexual", "questioning", "other_gender", "prefer_not_gender"];
 export const ORIENTATIONS = ["straight", "gay", "lesbian", "bisexual", "pansexual", "omnisexual", "polysexual", "asexual", "demisexual", "sapiosexual", "aromantic", "transgender", "queer", "fluid", "questioning", "prefer_not"];
 export const genderLabel = (g, lang) => t(g, lang);
 

@@ -29,6 +29,17 @@ STORAGE_BASE = (os.environ.get("INTEGRATION_PROXY_URL") or "").strip() or "https
 STORAGE_URL = STORAGE_BASE.rstrip("/") + "/objstore/api/v1/storage"
 EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY")
 APP_NAME = "giftsdates"
+# Comprehensive list of gender identities accepted across sign-up, main profile and VIP profile.
+VALID_GENDERS = (
+    "female", "male", "trans_woman", "trans_man", "non_binary",
+    "transgender", "transfeminine", "transmasculine",
+    "cis_woman", "cis_man", "agender", "genderqueer", "genderfluid",
+    "genderless", "gender_nonconforming", "gender_questioning",
+    "bigender", "pangender", "demigender", "demigirl", "demiboy",
+    "two_spirit", "intersex", "androgyne", "androgynous", "neutrois",
+    "gender_variant", "third_gender", "polygender", "omnigender",
+    "transsexual", "questioning", "other_gender", "prefer_not_gender",
+)
 storage_key = None
 
 def init_storage(force: bool = False):
@@ -807,7 +818,6 @@ async def register(req: RegisterReq):
         computed = age_from_birth(req.birth_year, req.birth_month, req.birth_day)
         if computed:
             age = computed
-    VALID_GENDERS = ("female", "male", "trans_woman", "trans_man", "non_binary")
     _genders = [g for g in (req.genders or []) if g in VALID_GENDERS]
     if not _genders and req.gender in VALID_GENDERS:
         _genders = [req.gender]
@@ -863,7 +873,6 @@ async def me(user=Depends(get_current_user)):
 async def update_me(patch: ProfileUpdate, user=Depends(get_current_user)):
     upd = {k: v for k, v in patch.model_dump().items() if v is not None}
     if "genders" in upd:
-        VALID_GENDERS = ("female", "male", "trans_woman", "trans_man", "non_binary")
         gs = [g for g in (upd["genders"] or []) if g in VALID_GENDERS]
         upd["genders"] = gs
         if gs:
@@ -2156,7 +2165,6 @@ async def put_vip_profile(req: VipProfileReq, user=Depends(get_current_user)):
             slots.append({"date": d, "from": f, "to": tt})
     slots.sort(key=lambda x: (x["date"], x["from"]))
     post_mode = req.post_mode if req.post_mode in ("together", "separate") else "together"
-    VALID_GENDERS = ("female", "male", "trans_woman", "trans_man", "non_binary")
     _genders = [g for g in (req.genders or []) if g in VALID_GENDERS]
     if not _genders and req.gender in VALID_GENDERS:
         _genders = [req.gender]

@@ -13,6 +13,7 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Switch } from "./ui/switch";
 import { VIP_CATEGORIES, VIP_PLACES, PRICE_KEYS, svcLabel, catTitle, placeLabel, priceLabel } from "../lib/vipCatalog";
+import { GENDERS } from "./ProfileDetailsForm";
 import CountrySelect from "./CountrySelect";
 import CitySelect from "./CitySelect";
 import MultiSelect from "./MultiSelect";
@@ -183,7 +184,7 @@ export default function VipEditor() {
                 accent="amber"
                 value={sepGenders}
                 onChange={setSepGenders}
-                options={["female", "male", "trans_woman", "trans_man", "non_binary"].map((g) => ({ value: g, label: t(g, lang) }))}
+                options={GENDERS.map((g) => ({ value: g, label: t(g, lang) }))}
                 placeholder={t("gender", lang)}
                 searchPlaceholder={t("search", lang)}
                 emptyText={t("no_results", lang)}
