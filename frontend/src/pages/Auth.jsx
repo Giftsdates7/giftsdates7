@@ -13,6 +13,7 @@ import { LANGUAGES, ZODIAC_EMOJI } from "../lib/i18n";
 import SpinWheel from "../components/SpinWheel";
 import CountrySelect from "../components/CountrySelect";
 import CitySelect from "../components/CitySelect";
+import MultiSelect from "../components/MultiSelect";
 import { Eye, EyeOff, MapPin, Loader2 } from "lucide-react";
 import { detectLocation } from "../lib/geolocate";
 import { normalizeCountry } from "../lib/countries";
@@ -50,7 +51,7 @@ export default function Auth() {
   const nav = useNavigate();
   const [sp] = useSearchParams();
   const [mode, setMode] = useState(sp.get("register") ? "register" : "login");
-  const [f, setF] = useState({ email: "", password: "", name: "", age: 25, gender: "female", interested_in: "male", orientation: "straight", city: "", country: "", bio: "", referral_code: sp.get("ref") || "", language: lang, birth_day: "", birth_month: "", birth_year: "", lat: null, lng: null });
+  const [f, setF] = useState({ email: "", password: "", name: "", age: 25, gender: "female", genders: ["female"], interested_in: "male", orientation: "straight", city: "", country: "", bio: "", referral_code: sp.get("ref") || "", language: lang, birth_day: "", birth_month: "", birth_year: "", lat: null, lng: null });
   const [busy, setBusy] = useState(false);
   const [locating, setLocating] = useState(false);
   const [agreed, setAgreed] = useState(false);
@@ -98,6 +99,7 @@ export default function Auth() {
         const st = localStorage.getItem("gd_spin_token");
         const payload = {
           ...f,
+          gender: (f.genders && f.genders.length ? f.genders[0] : f.gender),
           birth_day: f.birth_day ? parseInt(f.birth_day) : undefined,
           birth_month: f.birth_month ? parseInt(f.birth_month) : undefined,
           birth_year: f.birth_year ? parseInt(f.birth_year) : undefined,
@@ -188,10 +190,18 @@ export default function Auth() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label className="text-xs text-slate-400">{t("gender", lang)}</Label>
-                  <Select value={f.gender} onValueChange={v => setF({ ...f, gender: v })}>
-                    <SelectTrigger data-testid="auth-gender-select" className="bg-white/5 border-white/10 mt-1"><SelectValue /></SelectTrigger>
-                    <SelectContent className="bg-[#161320] border-white/10">{GENDERS.map(g => <SelectItem key={g} value={g}>{t(g, lang)}</SelectItem>)}</SelectContent>
-                  </Select>
+                  <div className="mt-1">
+                    <MultiSelect
+                      testid="auth-gender-select"
+                      accent="rose"
+                      value={f.genders || []}
+                      onChange={(gs) => setF({ ...f, genders: gs, gender: gs[0] || "" })}
+                      options={GENDERS.map(g => ({ value: g, label: t(g, lang) }))}
+                      placeholder={t("gender", lang)}
+                      searchPlaceholder={t("search", lang)}
+                      emptyText={t("no_results", lang)}
+                    />
+                  </div>
                 </div>
                 <div>
                   <Label className="text-xs text-slate-400">{t("interested_in", lang)}</Label>

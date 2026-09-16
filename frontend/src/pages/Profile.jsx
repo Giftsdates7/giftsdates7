@@ -12,6 +12,8 @@ import { Switch } from "../components/ui/switch";
 import { toast } from "sonner";
 import PhotoGrid from "../components/PhotoGrid";
 import ProfileDetailsForm from "../components/ProfileDetailsForm";
+import { GENDERS } from "../components/ProfileDetailsForm";
+import MultiSelect from "../components/MultiSelect";
 import AvailabilityCalendar from "../components/AvailabilityCalendar";
 import VipEditor from "../components/VipEditor";
 import CountrySelect from "../components/CountrySelect";
@@ -29,6 +31,7 @@ export default function Profile() {
   const [f, setF] = useState(() => ({ name: user?.name, age: user?.age, bio: user?.bio, city: user?.city, country: user?.country,
     lat: user?.lat ?? null, lng: user?.lng ?? null, hide_distance: user?.hide_distance ?? false,
     video_calls_enabled: user?.video_calls_enabled ?? true,
+    genders: user?.genders || (user?.gender ? [user.gender] : []),
     ...Object.fromEntries(DETAIL_KEYS.map(k => [k, user?.[k] ?? null])) }));
   const [busy, setBusy] = useState(false);
   const [locating, setLocating] = useState(false);
@@ -150,6 +153,21 @@ export default function Profile() {
           </div>
           <div><Label className="text-xs text-slate-400">{t("bio", lang)}</Label>
             <Textarea data-testid="profile-bio-input" rows={4} value={f.bio || ""} onChange={e => setF({ ...f, bio: e.target.value })} className="bg-white/5 border-white/10 mt-1"/></div>
+          <div>
+            <Label className="text-xs text-slate-400">{t("gender", lang)} ({t("select_multiple", lang)})</Label>
+            <div className="mt-1" data-testid="profile-gender-wrap">
+              <MultiSelect
+                testid="profile-gender-select"
+                accent="rose"
+                value={f.genders || []}
+                onChange={(gs) => setF({ ...f, genders: gs, gender: gs[0] || "" })}
+                options={GENDERS.map(g => ({ value: g, label: t(g, lang) }))}
+                placeholder={t("gender", lang)}
+                searchPlaceholder={t("search", lang)}
+                emptyText={t("no_results", lang)}
+              />
+            </div>
+          </div>
           <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
             <Label className="text-xs text-amber-300">{t("date_price", lang)}</Label>
             <p className="text-[11px] text-slate-400 mt-0.5" data-testid="profile-date-price-note">{t("date_price_note", lang)}</p>

@@ -410,6 +410,7 @@ class RegisterReq(BaseModel):
     name: str
     age: int
     gender: str
+    genders: Optional[List[str]] = None
     interested_in: str
     orientation: Optional[str] = "straight"
     city: str
@@ -447,6 +448,7 @@ class ProfileUpdate(BaseModel):
     relationship_intent: Optional[List[str]] = None
     orientation: Optional[str] = None
     gender: Optional[str] = None
+    genders: Optional[List[str]] = None
     hobbies: Optional[List[str]] = None
     height: Optional[int] = None
     weight: Optional[int] = None
@@ -805,9 +807,13 @@ async def register(req: RegisterReq):
         computed = age_from_birth(req.birth_year, req.birth_month, req.birth_day)
         if computed:
             age = computed
+    VALID_GENDERS = ("female", "male", "trans_woman", "trans_man", "non_binary")
+    _genders = [g for g in (req.genders or []) if g in VALID_GENDERS]
+    if not _genders and req.gender in VALID_GENDERS:
+        _genders = [req.gender]
     doc = {
         "id": uid, "email": req.email.lower(), "password": hash_pwd(req.password),
-        "name": req.name, "age": age, "gender": req.gender,
+        "name": req.name, "age": age, "gender": (_genders[0] if _genders else req.gender), "genders": _genders,
         "birth_date": birth_date, "zodiac": zodiac,
         "interested_in": req.interested_in, "orientation": req.orientation or "straight", "city": req.city, "country": req.country,
         "lat": req.lat, "lng": req.lng,
@@ -856,6 +862,12 @@ async def me(user=Depends(get_current_user)):
 @api.patch("/auth/me")
 async def update_me(patch: ProfileUpdate, user=Depends(get_current_user)):
     upd = {k: v for k, v in patch.model_dump().items() if v is not None}
+    if "genders" in upd:
+        VALID_GENDERS = ("female", "male", "trans_woman", "trans_man", "non_binary")
+        gs = [g for g in (upd["genders"] or []) if g in VALID_GENDERS]
+        upd["genders"] = gs
+        if gs:
+            upd["gender"] = gs[0]
     if "hide_distance" in upd and upd["hide_distance"] and not is_vip(user):
         raise HTTPException(403, "VIP_REQUIRED")
     if "height" in upd and not (100 <= upd["height"] <= 250): raise HTTPException(400, "Height must be 100-250 cm")
@@ -1299,6 +1311,7 @@ async def profile_detail(pid: str, user=Depends(get_current_user)):
                 "id": v.get("public_id"), "name": (v.get("nickname") or "").strip() or "VIP",
                 "age": v.get("age") or owner.get("age"), "city": v.get("city") or owner.get("city"),
                 "country": v.get("country") or owner.get("country"), "gender": v.get("gender") or owner.get("gender"),
+                "genders": v.get("genders") or ([v.get("gender")] if v.get("gender") else ([owner.get("gender")] if owner.get("gender") else [])),
                 "bio": v.get("bio") or "", "photos": v.get("photos") or [],
                 "is_vip": True, "is_premium": False, "vip_listing": True,
                 "liked_by_me": False, "conversation_id": None,
