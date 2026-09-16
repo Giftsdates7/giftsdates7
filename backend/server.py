@@ -2205,16 +2205,18 @@ async def get_vip_profile(uid: str, preview: Optional[str] = None, user=Depends(
     vip = owner["vip"]
     real_owner = owner["id"] == user["id"]
     # "preview=nonvip" lets the owner see exactly what a non-VIP / non-premium visitor sees
+    # "preview=vip" lets the owner see the fully unlocked view as a paying VIP/premium member sees it
     force_guest = preview == "nonvip"
-    is_owner = real_owner and not force_guest
-    eff_premium = is_premium(user) and not force_guest
+    force_vip = preview == "vip"
+    is_owner = real_owner and not force_guest and not force_vip
+    eff_premium = (is_premium(user) or force_vip) and not force_guest
     separate = vip.get("post_mode") == "separate"
-    # Unpublished VIP profiles are only visible to their owner
-    if vip.get("published") is False and not is_owner:
+    # Unpublished VIP profiles are only visible to their owner (allow the owner's own previews)
+    if vip.get("published") is False and not is_owner and not real_owner:
         raise HTTPException(404, "No VIP profile")
     # A separate listing accessed via the real user id (from the main profile page) is only
     # shown when the owner chose to reveal a VIP hint on their main profile
-    if separate and accessed_by_uid and not is_owner and not vip.get("show_on_main", True):
+    if separate and accessed_by_uid and not is_owner and not real_owner and not vip.get("show_on_main", True):
         raise HTTPException(404, "No VIP profile")
     # Display identity: separate listings show the nickname + independent details, never the real name
     if separate:

@@ -644,6 +644,8 @@ const T = {
   preview_mode_note: { ru: "Так ваш профиль видят другие", en: "This is how others see your profile" },
   preview_as_nonvip: { ru: "Как видит не-VIP", en: "See as non-VIP" },
   preview_nonvip_note: { ru: "Так ваш профиль видит обычный (не-VIP) пользователь", en: "This is how a non-VIP visitor sees your profile" },
+  see_as_vip: { ru: "Как видит VIP", en: "See as VIP" },
+  preview_vip_note: { ru: "Так ваш профиль видит VIP / Premium пользователь", en: "This is how a VIP / Premium member sees your profile" },
   vip_add_photo: { ru: "Добавить фото", en: "Add photo", es: "Añadir foto", fr: "Ajouter une photo", de: "Foto hinzufügen", pt: "Adicionar foto", zh: "添加照片", hi: "फ़ोटो जोड़ें", bn: "ছবি যোগ করুন", ur: "تصویر شامل کریں", ar: "إضافة صورة" },
   vip_max_photos: { ru: "Максимум 12 фото", en: "Maximum 12 photos", es: "Máximo 12 fotos", fr: "12 photos maximum", de: "Maximal 12 Fotos", pt: "Máximo 12 fotos", zh: "最多12张照片", hi: "अधिकतम 12 फ़ोटो", bn: "সর্বোচ্চ ১২টি ছবি", ur: "زیادہ سے زیادہ 12 تصاویر", ar: "بحد أقصى 12 صورة" },
   vip_cover: { ru: "Обложка", en: "Cover", es: "Portada", fr: "Couverture", de: "Titelbild", pt: "Capa", zh: "封面", hi: "कवर", bn: "কভার", ur: "کور", ar: "غلاف" },

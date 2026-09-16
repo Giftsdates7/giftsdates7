@@ -40,6 +40,7 @@ export default function ProfileView() {
   const nav = useNavigate();
   const location = useLocation();
   const previewGuest = new URLSearchParams(location.search).get("preview") === "guest";
+  const previewVip = new URLSearchParams(location.search).get("preview") === "vip";
   const [p, setP] = useState(null);
   const [idx, setIdx] = useState(0);
   const [modal, setModal] = useState(null);
@@ -102,7 +103,7 @@ export default function ProfileView() {
             </div>
 
             {isSelf && (
-              <div data-testid="profile-view-preview-badge" className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/15 text-xs text-slate-300 w-fit">{previewGuest ? <EyeOff size={13} /> : <Eye size={13} />} {t(previewGuest ? "preview_nonvip_note" : "preview_mode_note", lang)}</div>
+              <div data-testid="profile-view-preview-badge" className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/15 text-xs text-slate-300 w-fit">{previewGuest ? <EyeOff size={13} /> : <Eye size={13} />} {t(previewGuest ? "preview_nonvip_note" : (previewVip ? "preview_vip_note" : "preview_mode_note"), lang)}</div>
             )}
             {!isSelf && (
             <button data-testid="profile-view-report-button" onClick={() => setModal("report")} className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-rose-300 transition-colors">
@@ -220,7 +221,7 @@ export default function ProfileView() {
       <InviteDateModal open={modal === "date"} onOpenChange={(v) => !v && setModal(null)} target={p} />
       <ReportModal open={modal === "report"} onOpenChange={(v) => !v && setModal(null)} target={p} />
       <GiftPremiumModal open={modal === "giftpremium"} onOpenChange={(v) => !v && setModal(null)} target={p} />
-      <div className="max-w-5xl mx-auto px-4"><VipSection userId={p.id} name={p.name} preview={previewGuest ? "nonvip" : undefined} /></div>
+      <div className="max-w-5xl mx-auto px-4"><VipSection userId={p.id} name={p.name} preview={previewGuest ? "nonvip" : (previewVip ? "vip" : undefined)} /></div>
     </div>
   );
 }

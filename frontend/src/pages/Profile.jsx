@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ShieldCheck, Trash2, Eye, EyeOff, MapPin, Loader2, Lock, Video, VideoOff } from "lucide-react";
+import { ShieldCheck, Trash2, Eye, EyeOff, MapPin, Loader2, Lock, Video, VideoOff, Crown } from "lucide-react";
 import { api } from "../lib/api";
 import { useApp } from "../context/AppContext";
 import { t } from "../lib/i18n";
@@ -93,6 +93,7 @@ export default function Profile() {
           <div className="flex items-center gap-2 flex-wrap">
             <Button data-testid="profile-preview-button" variant="outline" onClick={() => nav(`/profile/${user.id}`)} className="bg-white/5 border-white/15 hover:bg-white/10 text-slate-200 h-10"><Eye size={16} className="me-1.5" /> {t("preview_my_profile", lang)}</Button>
             <Button data-testid="profile-preview-nonvip-button" variant="outline" onClick={() => nav(`/profile/${user.id}?preview=guest`)} className="bg-white/5 border-white/15 hover:bg-white/10 text-slate-200 h-10"><EyeOff size={16} className="me-1.5" /> {t("preview_as_nonvip", lang)}</Button>
+            <Button data-testid="profile-preview-asvip-button" variant="outline" onClick={() => nav(`/profile/${user.id}?preview=vip`)} className="bg-red-500/10 border-red-500/40 hover:bg-red-500/20 text-red-200 h-10"><Crown size={16} className="me-1.5" /> {t("see_as_vip", lang)}</Button>
           </div>
         </div>
         <div className="glass rounded-2xl p-6 space-y-4 mb-6">
