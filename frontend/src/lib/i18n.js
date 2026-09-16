@@ -272,6 +272,7 @@ const T = {
   intent_friendship: { ru: "Дружба", en: "Friendship", es: "Amistad", fr: "Amitié", de: "Freundschaft", pt: "Amizade", zh: "友谊", ar: "صداقة", hi: "दोस्ती", bn: "বন্ধুত্ব", ur: "دوستی" },
   intent_travel: { ru: "Совместные путешествия", en: "Travel partner", es: "Compañero de viaje", fr: "Partenaire de voyage", de: "Reisepartner", pt: "Parceiro de viagem", zh: "旅行伙伴", ar: "شريك سفر", hi: "यात्रा साथी", bn: "ভ্রমণসঙ্গী", ur: "سفر کا ساتھی" },
   intent_sponsor: { ru: "Спонсорство", en: "Sponsorship", es: "Patrocinio", fr: "Mécénat", de: "Sponsoring", pt: "Patrocínio", zh: "赞助", ar: "رعاية", hi: "स्पॉन्सरशिप", bn: "স্পনসরশিপ", ur: "سپانسرشپ" },
+  intent_giftsdates: { ru: "GiftsDates", en: "GiftsDates", es: "GiftsDates", fr: "GiftsDates", de: "GiftsDates", pt: "GiftsDates", zh: "GiftsDates", ar: "GiftsDates", hi: "GiftsDates", bn: "GiftsDates", ur: "GiftsDates" },
   hobbies: { ru: "Хобби", en: "Hobbies", es: "Pasatiempos", fr: "Loisirs", de: "Hobbys", pt: "Hobbies", zh: "爱好", ar: "الهوايات", hi: "शौक", bn: "শখ", ur: "مشاغل" },
   comma_separated: { ru: "через запятую", en: "comma separated", es: "separados por coma", fr: "séparés par des virgules", de: "kommagetrennt", pt: "separados por vírgula", zh: "用逗号分隔", ar: "مفصولة بفواصل", hi: "कॉमा से अलग करें", bn: "কমা দিয়ে আলাদা", ur: "کوما سے الگ" },
   height: { ru: "Рост (см)", en: "Height (cm)", es: "Altura (cm)", fr: "Taille (cm)", de: "Größe (cm)", pt: "Altura (cm)", zh: "身高（厘米）", ar: "الطول (سم)", hi: "ऊँचाई (सेमी)", bn: "উচ্চতা (সেমি)", ur: "قد (سینٹی میٹر)" },

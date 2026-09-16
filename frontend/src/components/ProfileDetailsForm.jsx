@@ -4,7 +4,7 @@ import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { LANGUAGES, t } from "../lib/i18n";
 
-export const INTENTS = ["serious", "marriage", "casual", "just_sex", "friendship", "travel", "sponsor"];
+export const INTENTS = ["serious", "marriage", "casual", "just_sex", "friendship", "travel", "sponsor", "giftsdates"];
 export const INCOMES = ["low", "mid", "high", "vip", "custom", "prefer_not"];
 export const KIDS = ["none", "have", "want", "no_want"];
 export const HABITS = ["never", "sometimes", "often"];
