@@ -107,6 +107,28 @@ export default function VipSection({ userId, name, preview }) {
         <div className="text-sm text-slate-300" data-testid="vip-services-note-view"><span className="text-slate-500">{t("vip_services", lang)}: </span>{v.services_note}</div>
       )}
 
+      {(v.height || v.weight || v.eye_color || v.hair_color || v.intimate_haircut || v.breast_size || v.dick_size || v.dick_girth) && (
+        <div className="rounded-xl border border-white/10 bg-white/5 p-4" data-testid="vip-view-appearance">
+          <div className="text-sm font-semibold text-amber-200 mb-2">{t("vip_appearance", lang)}</div>
+          <div className="grid grid-cols-2 gap-x-4">
+            {[
+              [t("height", lang), v.height ? `${v.height} cm` : ""],
+              [t("weight", lang), v.weight ? `${v.weight} kg` : ""],
+              [t("vip_eye_color", lang), v.eye_color],
+              [t("vip_hair_color", lang), v.hair_color],
+              [t("vip_intimate_haircut", lang), v.intimate_haircut],
+              [t("vip_breast_size", lang), v.breast_size],
+              [t("vip_dick_size", lang), v.dick_size],
+              [t("vip_dick_girth", lang), v.dick_girth],
+            ].filter(([, val]) => val).map(([label, val]) => (
+              <div key={label} className="flex justify-between gap-3 py-1.5 border-b border-white/5 text-sm">
+                <span className="text-slate-400">{label}</span><span className="text-right text-slate-200">{val}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="vip-prices">
         {PRICE_KEYS.map((p) => priceFor(p.k) > 0 && (
           <div key={p.k} className="glass rounded-xl p-3 text-center">

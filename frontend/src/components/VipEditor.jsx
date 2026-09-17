@@ -12,11 +12,60 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Switch } from "./ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { VIP_CATEGORIES, VIP_PLACES, PRICE_KEYS, svcLabel, catTitle, placeLabel, priceLabel } from "../lib/vipCatalog";
 import { GENDERS } from "./ProfileDetailsForm";
 import CountrySelect from "./CountrySelect";
 import CitySelect from "./CitySelect";
 import MultiSelect from "./MultiSelect";
+
+// Appearance option lists for the standalone anonymous VIP profile.
+const EYE_COLORS = ["Brown", "Hazel", "Amber", "Green", "Blue", "Grey", "Black", "Heterochromia"];
+const HAIR_COLORS = ["Black", "Dark brown", "Brown", "Light brown", "Blonde", "Platinum blonde", "Red", "Auburn", "Ginger", "Grey", "White", "Dyed / colourful"];
+const INTIMATE_HAIRCUTS = ["Fully shaved", "Trimmed", "Landing strip", "Bikini line", "Natural / full", "Triangle"];
+const BREAST_SIZES = ["AA", "A", "B", "C", "D", "DD", "E", "F", "G", "H+", "Natural", "Enhanced"];
+const DICK_SIZES = ["< 12 cm", "12–14 cm", "15–17 cm", "18–20 cm", "21–23 cm", "24+ cm"];
+const DICK_GIRTHS = ["Slim", "Average", "Thick", "Very thick", "< 10 cm", "10–12 cm", "13–15 cm", "16+ cm"];
+
+const NONE_VAL = "__none";
+const CUSTOM_VAL = "__custom";
+
+// A dropdown with all preset options plus a "Custom (type)…" entry that reveals a free-text input.
+function AttrSelect({ label, value, onChange, options, lang, testid }) {
+  const isPreset = value && options.includes(value);
+  const isCustom = !!value && !isPreset;
+  const selectVal = isPreset ? value : (isCustom ? CUSTOM_VAL : NONE_VAL);
+  return (
+    <div>
+      <label className="text-xs text-slate-400">{label}</label>
+      <Select
+        value={selectVal}
+        onValueChange={(v) => {
+          if (v === NONE_VAL) onChange("");
+          else if (v === CUSTOM_VAL) onChange(" ");
+          else onChange(v);
+        }}
+      >
+        <SelectTrigger data-testid={testid} className="bg-white/5 border-white/10 mt-1"><SelectValue /></SelectTrigger>
+        <SelectContent className="bg-[#161320] border-white/10 text-white max-h-72">
+          <SelectItem value={NONE_VAL}>{t("not_specified_short", lang)}</SelectItem>
+          {options.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+          <SelectItem value={CUSTOM_VAL}>{t("vip_attr_custom", lang)}</SelectItem>
+        </SelectContent>
+      </Select>
+      {isCustom && (
+        <Input
+          data-testid={`${testid}-custom`}
+          value={value.trim() === "" ? "" : value}
+          maxLength={60}
+          onChange={(e) => onChange(e.target.value || " ")}
+          placeholder={t("vip_attr_custom_ph", lang)}
+          className="bg-white/5 border-white/10 mt-2"
+        />
+      )}
+    </div>
+  );
+}
 
 export default function VipEditor() {
   const { user, refreshUser, lang } = useApp();
@@ -39,6 +88,14 @@ export default function VipEditor() {
   const [sepCountry, setSepCountry] = useState(v.country || "");
   const [sepGenders, setSepGenders] = useState(v.genders || (v.gender ? [v.gender] : []));
   const [sepBio, setSepBio] = useState(v.bio || "");
+  const [sepHeight, setSepHeight] = useState(v.height || "");
+  const [sepWeight, setSepWeight] = useState(v.weight || "");
+  const [sepEye, setSepEye] = useState(v.eye_color || "");
+  const [sepHair, setSepHair] = useState(v.hair_color || "");
+  const [sepHaircut, setSepHaircut] = useState(v.intimate_haircut || "");
+  const [sepBreast, setSepBreast] = useState(v.breast_size || "");
+  const [sepDick, setSepDick] = useState(v.dick_size || "");
+  const [sepDickGirth, setSepDickGirth] = useState(v.dick_girth || "");
   const [showOnMain, setShowOnMain] = useState(v.show_on_main !== false);
   const [published, setPublished] = useState(v.published !== false);
   const [busy, setBusy] = useState(false);
@@ -100,6 +157,9 @@ export default function VipEditor() {
         availability: slots, published: isVip ? published : false,
         nickname, post_mode: postMode,
         age: Number(sepAge) || null, city: sepCity, country: sepCountry, gender: sepGenders[0] || "", genders: sepGenders, bio: sepBio,
+        height: Number(sepHeight) || null, weight: Number(sepWeight) || null,
+        eye_color: (sepEye || "").trim(), hair_color: (sepHair || "").trim(), intimate_haircut: (sepHaircut || "").trim(),
+        breast_size: (sepBreast || "").trim(), dick_size: (sepDick || "").trim(), dick_girth: (sepDickGirth || "").trim(),
         show_on_main: showOnMain,
       });
       await refreshUser();
@@ -194,6 +254,25 @@ export default function VipEditor() {
           <div>
             <label className="text-xs text-slate-400">{t("vip_separate_bio", lang)}</label>
             <Textarea data-testid="vip-sep-bio" rows={2} maxLength={1000} value={sepBio} onChange={(e) => setSepBio(e.target.value)} placeholder={t("vip_separate_bio_ph", lang)} className="bg-white/5 border-white/10 mt-1" />
+          </div>
+          <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3" data-testid="vip-sep-appearance">
+            <div className="text-sm font-semibold text-amber-200">{t("vip_appearance", lang)}</div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-slate-400">{t("height", lang)}</label>
+                <Input data-testid="vip-sep-height" type="number" min="100" max="250" value={sepHeight} onChange={(e) => setSepHeight(e.target.value)} className="bg-white/5 border-white/10 mt-1 font-mono-num" />
+              </div>
+              <div>
+                <label className="text-xs text-slate-400">{t("weight", lang)}</label>
+                <Input data-testid="vip-sep-weight" type="number" min="30" max="400" value={sepWeight} onChange={(e) => setSepWeight(e.target.value)} className="bg-white/5 border-white/10 mt-1 font-mono-num" />
+              </div>
+              <AttrSelect testid="vip-sep-eye" label={t("vip_eye_color", lang)} value={sepEye} onChange={setSepEye} options={EYE_COLORS} lang={lang} />
+              <AttrSelect testid="vip-sep-hair" label={t("vip_hair_color", lang)} value={sepHair} onChange={setSepHair} options={HAIR_COLORS} lang={lang} />
+              <AttrSelect testid="vip-sep-haircut" label={t("vip_intimate_haircut", lang)} value={sepHaircut} onChange={setSepHaircut} options={INTIMATE_HAIRCUTS} lang={lang} />
+              <AttrSelect testid="vip-sep-breast" label={t("vip_breast_size", lang)} value={sepBreast} onChange={setSepBreast} options={BREAST_SIZES} lang={lang} />
+              <AttrSelect testid="vip-sep-dick" label={t("vip_dick_size", lang)} value={sepDick} onChange={setSepDick} options={DICK_SIZES} lang={lang} />
+              <AttrSelect testid="vip-sep-dick-girth" label={t("vip_dick_girth", lang)} value={sepDickGirth} onChange={setSepDickGirth} options={DICK_GIRTHS} lang={lang} />
+            </div>
           </div>
           <div className="flex items-center justify-between gap-3 rounded-xl bg-white/5 border border-white/10 px-3 py-2.5">
             <div>

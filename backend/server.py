@@ -2146,6 +2146,15 @@ class VipProfileReq(BaseModel):
     gender: str = ""
     genders: List[str] = []
     bio: str = ""
+    # Standalone anonymous appearance details
+    height: Optional[int] = None
+    weight: Optional[int] = None
+    eye_color: str = ""
+    hair_color: str = ""
+    intimate_haircut: str = ""
+    breast_size: str = ""
+    dick_size: str = ""
+    dick_girth: str = ""
     show_on_main: bool = True  # when "separate", whether to also show a VIP hint on the main profile
 
 @api.get("/vip/catalog")
@@ -2172,6 +2181,14 @@ async def put_vip_profile(req: VipProfileReq, user=Depends(get_current_user)):
     if req.age:
         try: _age = max(18, min(99, int(req.age)))
         except Exception: _age = None
+    _height = None
+    if req.height:
+        try: _height = max(100, min(250, int(req.height)))
+        except Exception: _height = None
+    _weight = None
+    if req.weight:
+        try: _weight = max(30, min(400, int(req.weight)))
+        except Exception: _weight = None
     vip = {"services": services,
            "services_note": (req.services_note or "").strip()[:500],
            "prices": {"hour": max(0, req.price_hour), "h2": max(0, req.price_2h), "h3": max(0, req.price_3h), "night": max(0, req.price_night)},
@@ -2180,6 +2197,13 @@ async def put_vip_profile(req: VipProfileReq, user=Depends(get_current_user)):
            "age": _age, "city": (req.city or "").strip()[:80], "country": (req.country or "").strip()[:80],
            "gender": _genders[0] if _genders else "",
            "genders": _genders,
+           "height": _height, "weight": _weight,
+           "eye_color": (req.eye_color or "").strip()[:60],
+           "hair_color": (req.hair_color or "").strip()[:60],
+           "intimate_haircut": (req.intimate_haircut or "").strip()[:60],
+           "breast_size": (req.breast_size or "").strip()[:60],
+           "dick_size": (req.dick_size or "").strip()[:60],
+           "dick_girth": (req.dick_girth or "").strip()[:60],
            "bio": (req.bio or "").strip()[:1000], "show_on_main": bool(req.show_on_main),
            "availability": slots, "published": bool(req.published) and can_publish, "updated_at": datetime.now(timezone.utc).isoformat()}
     # preserve previously uploaded photos (managed by separate photo endpoints)
