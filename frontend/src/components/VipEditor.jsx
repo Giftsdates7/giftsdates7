@@ -140,6 +140,13 @@ export default function VipEditor() {
   };
 
   const toggle = (arr, set, val) => set(arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val]);
+  // Gender-aware appearance: show breast fields for feminine identities, dick fields for masculine ones.
+  const FEMININE = ["female", "cis_woman"];
+  const MASCULINE = ["male", "cis_man"];
+  const onlyFeminine = sepGenders.length > 0 && sepGenders.every((g) => FEMININE.includes(g));
+  const onlyMasculine = sepGenders.length > 0 && sepGenders.every((g) => MASCULINE.includes(g));
+  const showBreast = !onlyMasculine; // hide only when purely masculine
+  const showDick = !onlyFeminine;    // hide only when purely feminine
   const addSlot = () => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(ns.date) || ns.from >= ns.to) { toast.error("Укажите дату и корректное время"); return; }
     setSlots([...slots, { ...ns }].sort((a, b) => (a.date + a.from).localeCompare(b.date + b.from)));
@@ -159,7 +166,7 @@ export default function VipEditor() {
         age: Number(sepAge) || null, city: sepCity, country: sepCountry, gender: sepGenders[0] || "", genders: sepGenders, bio: sepBio,
         height: Number(sepHeight) || null, weight: Number(sepWeight) || null,
         eye_color: (sepEye || "").trim(), hair_color: (sepHair || "").trim(), intimate_haircut: (sepHaircut || "").trim(),
-        breast_size: (sepBreast || "").trim(), dick_size: (sepDick || "").trim(), dick_girth: (sepDickGirth || "").trim(),
+        breast_size: showBreast ? (sepBreast || "").trim() : "", dick_size: showDick ? (sepDick || "").trim() : "", dick_girth: showDick ? (sepDickGirth || "").trim() : "",
         show_on_main: showOnMain,
       });
       await refreshUser();
@@ -269,9 +276,9 @@ export default function VipEditor() {
               <AttrSelect testid="vip-sep-eye" label={t("vip_eye_color", lang)} value={sepEye} onChange={setSepEye} options={EYE_COLORS} lang={lang} />
               <AttrSelect testid="vip-sep-hair" label={t("vip_hair_color", lang)} value={sepHair} onChange={setSepHair} options={HAIR_COLORS} lang={lang} />
               <AttrSelect testid="vip-sep-haircut" label={t("vip_intimate_haircut", lang)} value={sepHaircut} onChange={setSepHaircut} options={INTIMATE_HAIRCUTS} lang={lang} />
-              <AttrSelect testid="vip-sep-breast" label={t("vip_breast_size", lang)} value={sepBreast} onChange={setSepBreast} options={BREAST_SIZES} lang={lang} />
-              <AttrSelect testid="vip-sep-dick" label={t("vip_dick_size", lang)} value={sepDick} onChange={setSepDick} options={DICK_SIZES} lang={lang} />
-              <AttrSelect testid="vip-sep-dick-girth" label={t("vip_dick_girth", lang)} value={sepDickGirth} onChange={setSepDickGirth} options={DICK_GIRTHS} lang={lang} />
+              {showBreast && <AttrSelect testid="vip-sep-breast" label={t("vip_breast_size", lang)} value={sepBreast} onChange={setSepBreast} options={BREAST_SIZES} lang={lang} />}
+              {showDick && <AttrSelect testid="vip-sep-dick" label={t("vip_dick_size", lang)} value={sepDick} onChange={setSepDick} options={DICK_SIZES} lang={lang} />}
+              {showDick && <AttrSelect testid="vip-sep-dick-girth" label={t("vip_dick_girth", lang)} value={sepDickGirth} onChange={setSepDickGirth} options={DICK_GIRTHS} lang={lang} />}
             </div>
           </div>
           <div className="flex items-center justify-between gap-3 rounded-xl bg-white/5 border border-white/10 px-3 py-2.5">

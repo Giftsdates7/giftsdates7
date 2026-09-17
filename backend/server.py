@@ -1197,6 +1197,8 @@ async def list_profiles(
     bust_size: Optional[str] = None, penis_size: Optional[str] = None, max_date_price: Optional[int] = None,
     premium_only: bool = False, vip_only: bool = False, with_photos: bool = False, verified_only: bool = False, online_now: bool = False,
     vip_categories: Optional[str] = None, vip_min_price: Optional[int] = None, vip_max_price: Optional[int] = None, vip_date: Optional[str] = None,
+    vip_eye_color: Optional[str] = None, vip_hair_color: Optional[str] = None, vip_intimate_haircut: Optional[str] = None, vip_breast_size: Optional[str] = None,
+    vip_min_height: Optional[int] = None, vip_max_height: Optional[int] = None, vip_min_weight: Optional[int] = None, vip_max_weight: Optional[int] = None,
     max_distance: Optional[int] = None, sort: Optional[str] = None,
     origin_lat: Optional[float] = None, origin_lng: Optional[float] = None,
     online_nearby: bool = False,
@@ -1207,7 +1209,9 @@ async def list_profiles(
                                                                    hobby, job, min_weight, max_weight, bust_size, penis_size, max_date_price, premium_only, with_photos, verified_only, online_now,
                                                                    vip_categories, vip_min_price, vip_max_price, vip_date))
     if advanced_used and not has_premium(user): raise HTTPException(403, "PREMIUM_REQUIRED")
-    vip_adv = bool(vip_categories or (vip_min_price is not None) or (vip_max_price is not None) or vip_date)
+    vip_adv = bool(vip_categories or (vip_min_price is not None) or (vip_max_price is not None) or vip_date
+                   or vip_eye_color or vip_hair_color or vip_intimate_haircut or vip_breast_size
+                   or (vip_min_height is not None) or (vip_max_height is not None) or (vip_min_weight is not None) or (vip_max_weight is not None))
     if vip_adv and not is_vip(user): raise HTTPException(403, "VIP_REQUIRED")
     vip_filter = bool(vip_only or vip_adv)
     if city and city.strip().lower() != "global":
@@ -1247,6 +1251,14 @@ async def list_profiles(
         conds.append({"$expr": {"$anyElementTrue": {"$map": {"input": {"$objectToArray": {"$ifNull": ["$vip.prices", {}]}}, "as": "p", "in": {"$and": checks}}}}})
     if vip_date:
         conds.append({"vip.availability": {"$elemMatch": {"date": vip_date}}})
+    for field, val in (("vip.eye_color", vip_eye_color), ("vip.hair_color", vip_hair_color), ("vip.intimate_haircut", vip_intimate_haircut), ("vip.breast_size", vip_breast_size)):
+        if val: conds.append({field: val})
+    for field, lo, hi in (("vip.height", vip_min_height, vip_max_height), ("vip.weight", vip_min_weight, vip_max_weight)):
+        if lo or hi:
+            r = {}
+            if lo: r["$gte"] = lo
+            if hi: r["$lte"] = hi
+            conds.append({field: r})
     proj = {"_id": 0, "password": 0, "email": 0, "referred_by": 0, "referral_code": 0}
     _not_premium = [{"$or": [{"premium_until": None}, {"premium_until": {"$lte": now_iso}}, {"premium_until": {"$exists": False}}]}]
     _not_lite = [{"$or": [{"premium_lite_until": None}, {"premium_lite_until": {"$lte": now_iso}}, {"premium_lite_until": {"$exists": False}}]}]
@@ -1304,6 +1316,10 @@ def _vip_listing_card(p: dict) -> dict:
         "gender": v.get("gender") or p.get("gender"),
         "bio": v.get("bio") or "",
         "photos": v.get("photos") or [],
+        "height": v.get("height"), "weight": v.get("weight"),
+        "eye_color": v.get("eye_color") or "", "hair_color": v.get("hair_color") or "",
+        "intimate_haircut": v.get("intimate_haircut") or "", "breast_size": v.get("breast_size") or "",
+        "dick_size": v.get("dick_size") or "", "dick_girth": v.get("dick_girth") or "",
         "is_vip": True, "is_premium": bool(p.get("is_premium")), "is_premium_lite": bool(p.get("is_premium_lite")),
         "vip_listing": True, "verified": False, "last_seen": None,
     }

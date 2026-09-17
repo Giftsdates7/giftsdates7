@@ -23,9 +23,15 @@ import { geocodeCity } from "../lib/geolocate";
 
 const ALL = "all";
 const RADII = [5, 10, 25, 50, 100, 250];
+const VIP_EYE_COLORS = ["Brown", "Hazel", "Amber", "Green", "Blue", "Grey", "Black", "Heterochromia"];
+const VIP_HAIR_COLORS = ["Black", "Dark brown", "Brown", "Light brown", "Blonde", "Platinum blonde", "Red", "Auburn", "Ginger", "Grey", "White", "Dyed / colourful"];
+const VIP_HAIRCUTS = ["Fully shaved", "Trimmed", "Landing strip", "Bikini line", "Natural / full", "Triangle"];
+const VIP_BREAST_SIZES = ["AA", "A", "B", "C", "D", "DD", "E", "F", "G", "H+", "Natural", "Enhanced"];
 const EXTRA_DEFAULT = { intent: ALL, kids: ALL, smoking: ALL, drinking: ALL, religion: ALL, income: ALL, language: ALL, bust_size: ALL, penis_size: ALL, orientation: ALL,
   min_height: "", max_height: "", min_weight: "", max_weight: "", hobby: "", job: "", max_date_price: "", premium_only: false, vip_only: false, with_photos: false, verified_only: false, online_now: false,
-  vip_categories: [], vip_min_price: "", vip_max_price: "", vip_date: "" };
+  vip_categories: [], vip_min_price: "", vip_max_price: "", vip_date: "",
+  vip_eye_color: ALL, vip_hair_color: ALL, vip_intimate_haircut: ALL, vip_breast_size: ALL,
+  vip_min_height: "", vip_max_height: "", vip_min_weight: "", vip_max_weight: "" };
 
 function FilterSelect({ testid, field, value, options, onChange, lang, label, labelFn }) {
   return (
@@ -313,6 +319,19 @@ export default function Browse() {
                   <NumInput testid="vip-filter-max-price" label={`${t("vip_price_coins", lang)} · ${t("max", lang)}`} min="0" value={filters.vip_max_price} onChange={v => setFilters({ ...filters, vip_max_price: v })} />
                   <div className="min-w-[150px]"><label className="text-xs text-slate-400">{t("vip_availability", lang)}</label>
                     <Input data-testid="vip-filter-date" type="date" value={filters.vip_date} onChange={e => setFilters({ ...filters, vip_date: e.target.value })} className="bg-white/5 border-white/10 mt-1" /></div>
+                </div>
+                <div className="text-xs font-semibold text-red-300/90 pt-1">{t("vip_appearance", lang)}</div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <FilterSelect testid="vip-filter-hair" field="vip_hair_color" label={t("vip_hair_color", lang)} value={filters.vip_hair_color} options={VIP_HAIR_COLORS} labelFn={o => o} onChange={v => setFilters({ ...filters, vip_hair_color: v })} lang={lang} />
+                  <FilterSelect testid="vip-filter-eye" field="vip_eye_color" label={t("vip_eye_color", lang)} value={filters.vip_eye_color} options={VIP_EYE_COLORS} labelFn={o => o} onChange={v => setFilters({ ...filters, vip_eye_color: v })} lang={lang} />
+                  <FilterSelect testid="vip-filter-haircut" field="vip_intimate_haircut" label={t("vip_intimate_haircut", lang)} value={filters.vip_intimate_haircut} options={VIP_HAIRCUTS} labelFn={o => o} onChange={v => setFilters({ ...filters, vip_intimate_haircut: v })} lang={lang} />
+                  <FilterSelect testid="vip-filter-breast" field="vip_breast_size" label={t("vip_breast_size", lang)} value={filters.vip_breast_size} options={VIP_BREAST_SIZES} labelFn={o => o} onChange={v => setFilters({ ...filters, vip_breast_size: v })} lang={lang} />
+                </div>
+                <div className="flex flex-wrap gap-3 items-end">
+                  <NumInput testid="vip-filter-min-height" label={`${t("height", lang)} · ${t("min", lang)}`} min="100" max="250" value={filters.vip_min_height} onChange={v => setFilters({ ...filters, vip_min_height: v })} />
+                  <NumInput testid="vip-filter-max-height" label={`${t("height", lang)} · ${t("max", lang)}`} min="100" max="250" value={filters.vip_max_height} onChange={v => setFilters({ ...filters, vip_max_height: v })} />
+                  <NumInput testid="vip-filter-min-weight" label={`${t("weight", lang)} · ${t("min", lang)}`} min="30" max="400" value={filters.vip_min_weight} onChange={v => setFilters({ ...filters, vip_min_weight: v })} />
+                  <NumInput testid="vip-filter-max-weight" label={`${t("weight", lang)} · ${t("max", lang)}`} min="30" max="400" value={filters.vip_max_weight} onChange={v => setFilters({ ...filters, vip_max_weight: v })} />
                 </div>
               </div>
             )}
