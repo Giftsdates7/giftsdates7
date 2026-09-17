@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { ShieldCheck, Landmark, FileText, BadgeCheck, Check } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { t } from "../lib/i18n";
@@ -7,7 +8,13 @@ import { t } from "../lib/i18n";
 // Verified badge -> Bank details -> Documents -> Approved
 export default function PayoutStatusTracker({ account }) {
   const { user, lang } = useApp();
+  const nav = useNavigate();
   const rejected = account?.status === "rejected";
+
+  const scrollToPayout = () => {
+    const el = document.getElementById("payout-account-section");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const steps = [
     {
@@ -15,24 +22,28 @@ export default function PayoutStatusTracker({ account }) {
       label: t("step_identity", lang),
       icon: ShieldCheck,
       done: user?.verified === true,
+      action: () => nav("/verify"),
     },
     {
       key: "bank",
       label: t("step_bank_details", lang),
       icon: Landmark,
       done: !!(account && account.iban && account.holder_name),
+      action: scrollToPayout,
     },
     {
       key: "documents",
       label: t("step_documents", lang),
       icon: FileText,
       done: !!(account && account.bank_statement_path && account.proof_of_address_path),
+      action: scrollToPayout,
     },
     {
       key: "approved",
       label: t("step_approved", lang),
       icon: BadgeCheck,
       done: account?.status === "verified",
+      action: scrollToPayout,
     },
   ];
 
@@ -74,12 +85,19 @@ export default function PayoutStatusTracker({ account }) {
           const Icon = s.icon;
           return (
             <React.Fragment key={s.key}>
-              <div className="flex flex-col items-center flex-shrink-0 w-16 sm:w-24" data-testid={`payout-step-${s.key}`}>
-                <div className={`relative w-10 h-10 rounded-full border flex items-center justify-center transition-colors ${circle}`}>
+              <button
+                type="button"
+                onClick={s.action}
+                title={s.label}
+                aria-label={s.label}
+                className="flex flex-col items-center flex-shrink-0 w-16 sm:w-24 group cursor-pointer focus:outline-none"
+                data-testid={`payout-step-${s.key}`}
+              >
+                <div className={`relative w-10 h-10 rounded-full border flex items-center justify-center transition-all group-hover:scale-110 group-hover:brightness-125 group-focus-visible:ring-2 group-focus-visible:ring-amber-400/60 ${circle}`}>
                   {state === "done" ? <Check size={18} /> : <Icon size={17} />}
                 </div>
-                <div className={`mt-2 text-[11px] sm:text-xs text-center leading-tight ${labelCls}`}>{s.label}</div>
-              </div>
+                <div className={`mt-2 text-[11px] sm:text-xs text-center leading-tight transition-colors group-hover:text-white ${labelCls}`}>{s.label}</div>
+              </button>
               {i < steps.length - 1 && (
                 <div className={`flex-1 h-0.5 mt-5 rounded-full ${steps[i].done ? "bg-emerald-500/40" : "bg-white/10"}`} />
               )}

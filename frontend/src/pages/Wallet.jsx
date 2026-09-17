@@ -93,7 +93,9 @@ export default function Wallet() {
         <p className="text-xs text-slate-400 -mt-4" data-testid="withdraw-only-note">{t("withdraw_only_note", lang)}</p>
 
         <PayoutStatusTracker account={wallet.payout_account} />
-        <PayoutAccountCard key={wallet.payout_account?.submitted_at || "new"} account={wallet.payout_account} onSaved={load} />
+        <div id="payout-account-section" className="scroll-mt-24">
+          <PayoutAccountCard key={wallet.payout_account?.submitted_at || "new"} account={wallet.payout_account} onSaved={load} />
+        </div>
         <ReferralCard />
 
         <div className="glass rounded-2xl p-5">
